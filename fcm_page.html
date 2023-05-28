@@ -1,0 +1,79 @@
+<p id="token"></p>
+<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-messaging.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyD1Z_CCrMuW_LLwyEUtKxP-Qdb9QJpOq-4",
+        authDomain: "thrato-3f5a1.firebaseapp.com",
+        databaseURL: "https://thrato-3f5a1.firebaseio.com",
+        projectId: "thrato-3f5a1",
+        storageBucket: "thrato-3f5a1.appspot.com",
+        messagingSenderId: "497735617902",
+        appId: "1:497735617902:web:96137fcfb79a9a94c1c57f",
+        measurementId: "G-5D875B0V8C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const messaging=firebase.messaging();
+
+    function IntitalizeFireBaseMessaging() {
+        messaging
+            .requestPermission()
+            .then(function () {
+                console.log("Notification Permission");
+                return messaging.getToken();
+            })
+            .then(function (token) {
+                //console.log("Token : "+token);
+                /*for laravel
+                var _token ="{{csrf_token()}}";       
+                var qs={code:code,_token:_token}; */
+                // var qs={token:token};
+                // $.ajax({
+                //     url:"{{ route('update-fcm-web-token.php') }}",
+                //     method:"POST",
+                //     data:qs,
+                //     success:function(result)
+                //     {
+                //         alert("Language code "+result.code);
+                //     },error:function(request, status, error){
+                //         console.log('Error is'+request.responseText);
+                //     }
+                // });
+                document.getElementById("token").innerHTML=token;
+                
+            })
+            .catch(function (reason) {
+                console.log(reason);
+            });
+    }
+
+    messaging.onMessage(function (payload) {
+        console.log(payload);
+        const notificationOption={
+            body:payload.notification.body,
+            icon:payload.notification.icon
+        };
+
+        if(Notification.permission==="granted"){
+            var notification=new Notification(payload.notification.title,notificationOption);
+
+            notification.onclick=function (ev) {
+                ev.preventDefault();
+                window.open(payload.notification.click_action,'https://google.com');
+                notification.close();
+            }
+        }
+
+    });
+    messaging.onTokenRefresh(function () {
+        messaging.getToken()
+            .then(function (newtoken) {
+                console.log("New Token : "+ newtoken);
+            })
+            .catch(function (reason) {
+                console.log(reason);
+            })
+    })
+    IntitalizeFireBaseMessaging();
+</script>
